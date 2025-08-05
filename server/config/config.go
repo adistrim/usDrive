@@ -11,6 +11,11 @@ import (
 type Config struct {
 	Port string
 	DatabaseURL string
+	R2AccessKeyID string
+	R2SecretAccessKey string
+	R2Bucket string
+	R2Region string
+	R2API string
 }
 
 var ENV *Config
@@ -37,9 +42,24 @@ func LoadConfig() (*Config, error) {
 		return nil, fmt.Errorf("DATABASE_URL environment variable is not set")
 	}
 	
+	// Object Storage environment variables
+	r2AccessKeyID := os.Getenv("R2_ACCESS_KEY_ID")
+	r2SecretAccessKey := os.Getenv("R2_SECRET_ACCESS_KEY")
+	r2Bucket := os.Getenv("R2_BUCKET")
+	r2Region := os.Getenv("R2_REGION")
+	r2API := os.Getenv("R2_API")
+	if r2AccessKeyID == "" || r2SecretAccessKey == "" || r2Bucket == "" || r2Region == "" || r2API == "" {
+		return nil, fmt.Errorf("R2 environment variables are not set")
+	}
+	
 	return &Config{
 		Port: port,
 		DatabaseURL: databaseURL,
+		R2AccessKeyID: r2AccessKeyID,
+		R2SecretAccessKey: r2SecretAccessKey,
+		R2Bucket: r2Bucket,
+		R2Region: r2Region,
+		R2API: r2API,
 	}, nil
 }
 
