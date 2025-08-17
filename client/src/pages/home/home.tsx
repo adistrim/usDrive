@@ -10,58 +10,45 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { useState } from 'react'
-import { Toaster } from "@/components/ui/sonner"
-import { toast } from "sonner"
-import { completeFileUpload, requestUploadURL, uploadFile, type FileMetadata } from '@/api/fileupload'
+import { useFileUpload } from '@/lib/mutations'
 
 export default function Home() {
-
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [uploading, setUploading] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const fileUploadMutation = useFileUpload();
 
     const filechangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             setSelectedFile(file);
         }
-
     }
-    const handleupload = async (e: React.FormEvent) => {
+
+    const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedFile) return;
-        setUploading(true);
-
-        try {
-            const metadata: FileMetadata = {
-                fileName: selectedFile.name,
-                mimeType: selectedFile.type,
-                sizeBytes: selectedFile.size,
-                parentId: null,
+        
+        fileUploadMutation.mutate(selectedFile, {
+            onSuccess: () => {
+                setSelectedFile(null);
+                setIsDialogOpen(false);
             }
-            const { uploadUrl, fileId } = await requestUploadURL(metadata)
+        });
+    }
 
-            await uploadFile(uploadUrl, selectedFile)
-            await completeFileUpload(fileId)
-            toast.success("File uploaded successfully!");
+    const handleDialogChange = (open: boolean) => {
+        setIsDialogOpen(open);
+        if (!open) {
             setSelectedFile(null);
-        }
-        catch (error) {
-            toast.error("Error uploading file: " + error);
-        } finally {
-            setUploading(false);
         }
     }
 
-
-
-
     return (
-        <>
-            <div className="flex justify-end p-5 top-0 items-center pr-16">
-                <Dialog>
-                <form >
+        <div className="flex justify-end p-5 top-0 items-center pr-16">
+            <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
+                <form>
                     <DialogTrigger asChild>
-                        <Button className="cursor-pointer ">Upload files</Button>
+                        <Button className="cursor-pointer">Upload files</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
@@ -73,18 +60,21 @@ export default function Home() {
                                 id="file-upload"
                                 type="file"
                                 onChange={filechangeHandler}
-                                disabled={uploading}
+                                disabled={fileUploadMutation.isPending}
                             />
                         </div>
                         <DialogFooter>
-                            <Button type="submit" onClick={handleupload} disabled={uploading}>Upload</Button>
+                            <Button 
+                                type="submit" 
+                                disabled={fileUploadMutation.isPending}
+                                onClick={handleUpload}
+                            >
+                                {fileUploadMutation.isPending ? 'Uploading...' : 'Upload'}
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </form>
             </Dialog>
         </div>
-        <Toaster />
-        </>
     )
 }
-
