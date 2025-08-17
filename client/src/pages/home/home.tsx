@@ -12,10 +12,7 @@ import {
 import { useState } from 'react'
 import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
-import { requestUploadURL } from '@/api/home'
-import type { FileMetadata } from '@/api/home'
-import { completeFileUpload } from '@/api/fileupload'
-import  { uploadFile } from '@/api/uploadfile'
+import { completeFileUpload, requestUploadURL, uploadFile, type FileMetadata } from '@/api/fileupload'
 
 export default function Home() {
 
