@@ -10,10 +10,12 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { useState } from 'react'
-import axios from 'axios'
 import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
-
+import { requestUploadURL } from '@/api/home'
+import type { FileMetadata } from '@/api/home'
+import { completeFileUpload } from '@/api/fileupload'
+import  { uploadFile } from '@/api/uploadfile'
 
 export default function Home() {
 
@@ -33,24 +35,16 @@ export default function Home() {
         setUploading(true);
 
         try {
-            const metadata = {
+            const metadata: FileMetadata = {
                 fileName: selectedFile.name,
                 mimeType: selectedFile.type,
                 sizeBytes: selectedFile.size,
                 parentId: null,
             }
-            const res = await axios.post("/api/request/upload", metadata, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            })
-            const { uploadUrl, fileId } = await res.data;
+            const { uploadUrl, fileId } = await requestUploadURL(metadata)
 
-            await fetch(uploadUrl, {
-                method: "PUT",
-                body: selectedFile,
-            })
-            await axios.post(`/api/files/${fileId}/complete`)
+            await uploadFile(uploadUrl, selectedFile)
+            await completeFileUpload(fileId)
             toast.success("File uploaded successfully!");
             setSelectedFile(null);
         }
@@ -96,3 +90,4 @@ export default function Home() {
         </>
     )
 }
+
