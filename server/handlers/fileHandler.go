@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -27,16 +28,17 @@ func ListActiveFiles(c *gin.Context) {
 	pgClient := db.GetDBInstance()
 	rows, err := pgClient.Query(
 		context.Background(),
-		`SELECT id, parent_id, name, is_folder, mime_type, size_bytes, status, storage_path, created_at, updated_at
-		 FROM files WHERE status = 'active'`,
+		`SELECT id, parent_id, name, is_folder, mime_type, size_bytes, status, storage_path, created_at, updated_at FROM files WHERE status = $1`,
+		"active",
 	)
 	if err != nil {
+		log.Printf("Failed to fetch files: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch files"})
 		return
 	}
 	defer rows.Close()
 
-	var files []File
+	files := make([]File, 0)
 	for rows.Next() {
 		var f File
 		err := rows.Scan(
@@ -44,6 +46,7 @@ func ListActiveFiles(c *gin.Context) {
 			&f.Status, &f.StoragePath, &f.CreatedAt, &f.UpdatedAt,
 		)
 		if err != nil {
+			log.Printf("Failed to parse file data: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse file data"})
 			return
 		}
