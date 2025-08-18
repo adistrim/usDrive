@@ -11,8 +11,15 @@ func Master() *gin.Engine {
 	
 	router.GET("/health", HealthCheck)
 	
-	router.POST("/api/request/upload", handlers.RequestUpload)
-	router.POST("/api/files/:fileId/complete", handlers.CompleteUpload)
+	api := router.Group("/api")
+	{
+		files := api.Group("/files")
+		{
+			files.POST("/request/upload", handlers.RequestUpload)
+			files.POST("/:fileId/complete", handlers.CompleteUpload)
+			files.GET("", handlers.ListActiveFiles)
+		}
+	}
 	
 	return router
 }
