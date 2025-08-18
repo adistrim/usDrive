@@ -38,7 +38,7 @@ func ListActiveFiles(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	files := make([]File, 0)
+	files := make([]File, 0, 100)
 	for rows.Next() {
 		var f File
 		err := rows.Scan(
@@ -53,5 +53,11 @@ func ListActiveFiles(c *gin.Context) {
 		files = append(files, f)
 	}
 
+	if err := rows.Err(); err != nil {
+		log.Printf("Error during rows iteration: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading files"})
+		return
+	}
+	
 	c.JSON(http.StatusOK, gin.H{"files": files})
 }
