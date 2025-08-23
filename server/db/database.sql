@@ -1,4 +1,15 @@
+CREATE DATABASE usdrive;
+
 CREATE TYPE file_status AS ENUM ('pending_upload', 'active', 'error');
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    google_id VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    full_name VARCHAR(255),
+    avatar_url TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 CREATE TABLE files (
     id BIGSERIAL PRIMARY KEY,
