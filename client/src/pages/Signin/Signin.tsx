@@ -59,7 +59,7 @@ export default function SigninPage() {
         <CardFooter className="flex flex-col items-center justify-center gap-2 text-xs text-gray-500">
           <p>By signing in, you agree to our</p>
           <div className="flex gap-1">
-            <a href="https://github.com/adistrim/usDrive/blob/main/TOS" className="text-blue-500 hover:underline">Terms of Service</a>
+            <a href="https://github.com/adistrim/usDrive/blob/main/ToS" className="text-blue-500 hover:underline">Terms of Service</a>
             <span>and</span>
             <a href="https://github.com/adistrim/usDrive/blob/main/PRIVACY" className="text-blue-500 hover:underline">Privacy Policy</a>
           </div>
