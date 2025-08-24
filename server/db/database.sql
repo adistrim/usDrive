@@ -13,6 +13,7 @@ CREATE TABLE users (
 
 CREATE TABLE files (
     id BIGSERIAL PRIMARY KEY,
+    owner_id INTEGER NOT NULL,
     parent_id BIGINT,
     name TEXT NOT NULL,
     is_folder BOOLEAN NOT NULL DEFAULT FALSE,
@@ -23,7 +24,9 @@ CREATE TABLE files (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
+    CONSTRAINT fk_owner FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_parent FOREIGN KEY(parent_id) REFERENCES files(id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_files_parent_id ON files(parent_id);
+CREATE INDEX idx_files_owner_id ON files(owner_id);
